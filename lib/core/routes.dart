@@ -3,6 +3,7 @@ class AppRoutes {
 
   static const roleSelection = '/';
   static const ownerLogin = '/owner/login';
+  static const ownerHome = '/owner/home';
   static const workerChoice = '/worker';
   static const workerRegister = '/worker/register';
   static const workerLogin = '/worker/login';

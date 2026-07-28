@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:konofrontend/core/theme.dart';
 import 'package:konofrontend/core/widgets/app_text_field.dart';
 import 'package:konofrontend/core/widgets/bottom_button_scaffold.dart';
 
 class LoginScreen extends StatelessWidget {
-  const LoginScreen({super.key, required this.title});
+  const LoginScreen({super.key, required this.title, this.nextRoute});
 
   final String title;
+  final String? nextRoute;
 
   @override
   Widget build(BuildContext context) {
     return BottomButtonScaffold(
       buttonLabel: 'Log in',
-      onButtonPressed: () {},
+      onButtonPressed: () {
+        if (nextRoute != null) context.go(nextRoute!);
+      },
       body: Padding(
         padding: const EdgeInsets.fromLTRB(24, 32, 24, 0),
         child: Column(

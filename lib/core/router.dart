@@ -4,6 +4,7 @@ import 'package:konofrontend/features/auth/presentation/screens/login_screen.dar
 import 'package:konofrontend/features/auth/presentation/screens/role_selection_screen.dart';
 import 'package:konofrontend/features/auth/presentation/screens/worker_choice_screen.dart';
 import 'package:konofrontend/features/auth/presentation/screens/worker_registration_screen.dart';
+import 'package:konofrontend/features/owner/presentation/screens/owner_home_screen.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: AppRoutes.roleSelection,
@@ -14,7 +15,12 @@ final GoRouter appRouter = GoRouter(
     ),
     GoRoute(
       path: AppRoutes.ownerLogin,
-      builder: (context, state) => const LoginScreen(title: 'Hello boss!'),
+      builder: (context, state) =>
+          const LoginScreen(title: 'Hello boss!', nextRoute: AppRoutes.ownerHome),
+    ),
+    GoRoute(
+      path: AppRoutes.ownerHome,
+      builder: (context, state) => const OwnerHomeScreen(),
     ),
     GoRoute(
       path: AppRoutes.workerChoice,
