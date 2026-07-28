@@ -7,4 +7,5 @@ class AppRoutes {
   static const workerChoice = '/worker';
   static const workerRegister = '/worker/register';
   static const workerLogin = '/worker/login';
+  static const workerWaitForInvite = '/worker/wait-for-invite';
 }

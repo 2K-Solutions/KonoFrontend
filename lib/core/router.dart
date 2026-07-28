@@ -4,6 +4,7 @@ import 'package:konofrontend/features/auth/presentation/screens/login_screen.dar
 import 'package:konofrontend/features/auth/presentation/screens/role_selection_screen.dart';
 import 'package:konofrontend/features/auth/presentation/screens/worker_choice_screen.dart';
 import 'package:konofrontend/features/auth/presentation/screens/worker_registration_screen.dart';
+import 'package:konofrontend/features/auth/presentation/screens/wait_for_invite_screen.dart';
 import 'package:konofrontend/features/owner/presentation/screens/owner_home_screen.dart';
 
 final GoRouter appRouter = GoRouter(
@@ -32,7 +33,14 @@ final GoRouter appRouter = GoRouter(
     ),
     GoRoute(
       path: AppRoutes.workerLogin,
-      builder: (context, state) => const LoginScreen(title: 'You are doing a good job today!'),
+      builder: (context, state) => const LoginScreen(
+        title: 'You are doing a good job today!',
+        nextRoute: AppRoutes.workerWaitForInvite,
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.workerWaitForInvite,
+      builder: (context, state) => const WaitForInviteScreen(),
     ),
   ],
 );

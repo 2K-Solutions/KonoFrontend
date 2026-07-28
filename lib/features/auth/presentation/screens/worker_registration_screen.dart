@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:konofrontend/core/routes.dart';
 import 'package:konofrontend/core/widgets/app_text_field.dart';
 import 'package:konofrontend/core/widgets/bottom_button_scaffold.dart';
 
@@ -9,7 +11,7 @@ class WorkerRegistrationScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BottomButtonScaffold(
       buttonLabel: 'Sign up',
-      onButtonPressed: () {},
+      onButtonPressed: () => context.go(AppRoutes.workerWaitForInvite),
       body: Padding(
         padding: const EdgeInsets.fromLTRB(24, 32, 24, 0),
         child: Column(

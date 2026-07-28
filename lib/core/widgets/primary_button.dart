@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
 
 class PrimaryButton extends StatelessWidget {
-  const PrimaryButton({super.key, required this.label, required this.onPressed});
+  const PrimaryButton({super.key, required this.label, required this.onPressed, this.icon});
 
   final String label;
   final VoidCallback? onPressed;
+  final IconData? icon;
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
+    if (icon == null) {
+      return ElevatedButton(onPressed: onPressed, child: Text(label.toUpperCase()));
+    }
+    return ElevatedButton.icon(
       onPressed: onPressed,
-      child: Text(label.toUpperCase()),
+      icon: Icon(icon),
+      label: Text(label.toUpperCase()),
     );
   }
 }
