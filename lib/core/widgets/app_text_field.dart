@@ -7,12 +7,14 @@ class AppTextField extends StatefulWidget {
     required this.hint,
     this.obscureText = false,
     this.keyboardType,
+    this.maxLength,
   });
 
   final String label;
   final String hint;
   final bool obscureText;
   final TextInputType? keyboardType;
+  final int? maxLength;
 
   @override
   State<AppTextField> createState() => _AppTextFieldState();
@@ -33,8 +35,10 @@ class _AppTextFieldState extends State<AppTextField> {
           TextField(
             obscureText: _obscure,
             keyboardType: widget.keyboardType,
+            maxLength: widget.maxLength,
             decoration: InputDecoration(
               hintText: widget.hint,
+              counterText: '',
               suffixIcon: widget.obscureText
                   ? IconButton(
                       icon: Icon(_obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined),

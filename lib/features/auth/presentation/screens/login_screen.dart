@@ -24,8 +24,14 @@ class LoginScreen extends StatelessWidget {
               label: 'E-mail',
               hint: 'owner@kono.rest',
               keyboardType: TextInputType.emailAddress,
+              maxLength: 50,
             ),
-            const AppTextField(label: 'Password', hint: '********', obscureText: true),
+            const AppTextField(
+              label: 'Password',
+              hint: '********',
+              obscureText: true,
+              maxLength: 32,
+            ),
             Align(
               alignment: Alignment.centerLeft,
               child: TextButton(

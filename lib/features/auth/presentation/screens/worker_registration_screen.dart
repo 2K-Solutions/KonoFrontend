@@ -21,19 +21,26 @@ class WorkerRegistrationScreen extends StatelessWidget {
               child: SingleChildScrollView(
                 child: Column(
                   children: const [
-                    AppTextField(label: 'First name', hint: 'Enter your first name'),
-                    AppTextField(label: 'Last name', hint: 'Enter your last name'),
-                    AppTextField(label: 'E-mail', hint: 'example@kono.rest'),
+                    AppTextField(label: 'First name', hint: 'Enter your first name', maxLength: 25),
+                    AppTextField(label: 'Last name', hint: 'Enter your last name', maxLength: 25),
+                    AppTextField(label: 'E-mail', hint: 'example@kono.rest', maxLength: 50),
                     AppTextField(
                       label: 'Phone number',
                       hint: '+1 234 567 8900',
                       keyboardType: TextInputType.phone,
+                      maxLength: 15,
                     ),
-                    AppTextField(label: 'Password', hint: '********', obscureText: true),
+                    AppTextField(
+                      label: 'Password',
+                      hint: '********',
+                      obscureText: true,
+                      maxLength: 32,
+                    ),
                     AppTextField(
                       label: 'Repeat password',
                       hint: '********',
                       obscureText: true,
+                      maxLength: 32,
                     ),
                   ],
                 ),
