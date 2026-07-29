@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:konofrontend/core/routes.dart';
 import 'package:konofrontend/core/theme.dart';
 import 'package:konofrontend/core/widgets/bottom_button_scaffold.dart';
 
@@ -54,13 +56,13 @@ class WaitForInviteScreen extends StatelessWidget {
               width: 56,
               height: 56,
               child: Material(
-                color: AppColors.primary,
+                color: AppColors.primary.withValues(alpha: 0.1),
                 shape: const CircleBorder(),
                 child: InkWell(
-                  onTap: () {},
+                  onTap: () => context.push(AppRoutes.workerProfile),
                   customBorder: const CircleBorder(),
                   child: const Center(
-                    child: Icon(Icons.person_outline, color: Colors.white, size: 28),
+                    child: Icon(Icons.person_outline, color: AppColors.primary, size: 28),
                   ),
                 ),
               ),
