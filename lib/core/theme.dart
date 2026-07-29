@@ -5,6 +5,17 @@ class AppColors {
   static const background = Color(0xFFFFFFFF);
   static const textDark = Color(0xFF1A1A1A);
   static const textMuted = Color(0xFF6B6B6B);
+  static const border = Color(0xFFE0E0E0);
+}
+
+class AppDecorations {
+  const AppDecorations._();
+
+  static final BoxDecoration card = BoxDecoration(
+    color: Colors.white,
+    border: Border.all(color: AppColors.border),
+    borderRadius: BorderRadius.circular(8),
+  );
 }
 
 const String _fontFamily = 'Inter';
@@ -39,7 +50,7 @@ final ThemeData appTheme = ThemeData(
     contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(8),
-      borderSide: BorderSide(color: Colors.grey.shade300),
+      borderSide: const BorderSide(color: AppColors.border),
     ),
     labelStyle: const TextStyle(color: AppColors.textMuted, fontWeight: FontWeight.w600),
   ),

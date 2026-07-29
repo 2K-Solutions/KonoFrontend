@@ -16,11 +16,7 @@ class IconMenuCard extends StatelessWidget {
         width: double.infinity,
         alignment: Alignment.center,
         padding: const EdgeInsets.symmetric(vertical: 24),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border.all(color: Colors.grey.shade300),
-          borderRadius: BorderRadius.circular(8),
-        ),
+        decoration: AppDecorations.card,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

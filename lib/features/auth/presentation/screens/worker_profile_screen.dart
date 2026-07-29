@@ -78,10 +78,7 @@ class WorkerProfileScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey.shade300),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+                  decoration: AppDecorations.card,
                   child: const Row(
                     children: [
                       Icon(Icons.lock_outline, color: AppColors.primary),
@@ -102,11 +99,7 @@ class WorkerProfileScreen extends StatelessWidget {
             Text('SETTINGS', style: labelStyle),
             const SizedBox(height: 12),
             Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(color: Colors.grey.shade300),
-                borderRadius: BorderRadius.circular(8),
-              ),
+              decoration: AppDecorations.card,
               child: Column(
                 children: [
                   SwitchListTile(
@@ -116,7 +109,7 @@ class WorkerProfileScreen extends StatelessWidget {
                     secondary: const Icon(Icons.dark_mode_outlined, color: AppColors.primary),
                     title: const Text('Dark mode'),
                   ),
-                  Divider(height: 1, color: Colors.grey.shade300),
+                  const Divider(height: 1, color: AppColors.border),
                   ListTile(
                     leading: const Icon(Icons.language, color: AppColors.primary),
                     title: const Text('Language'),
