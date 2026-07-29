@@ -8,4 +8,5 @@ class AppRoutes {
   static const workerRegister = '/worker/register';
   static const workerLogin = '/worker/login';
   static const workerWaitForInvite = '/worker/wait-for-invite';
+  static const workerProfile = '/worker/profile';
 }
