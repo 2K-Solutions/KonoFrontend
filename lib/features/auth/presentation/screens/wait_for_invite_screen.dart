@@ -56,13 +56,13 @@ class WaitForInviteScreen extends StatelessWidget {
               width: 56,
               height: 56,
               child: Material(
-                color: AppColors.primary.withValues(alpha: 0.1),
+                color: AppColors.primary,
                 shape: const CircleBorder(),
                 child: InkWell(
                   onTap: () => context.push(AppRoutes.workerProfile),
                   customBorder: const CircleBorder(),
                   child: const Center(
-                    child: Icon(Icons.person_outline, color: AppColors.primary, size: 28),
+                    child: Icon(Icons.person_outline, color: Colors.white, size: 28),
                   ),
                 ),
               ),
