@@ -1,24 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:konofrontend/core/theme.dart';
 import 'package:konofrontend/core/validators.dart';
 import 'package:konofrontend/core/widgets/app_text_field.dart';
 import 'package:konofrontend/core/widgets/bottom_button_scaffold.dart';
+import 'package:konofrontend/features/auth/data/auth_repository.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key, required this.title, this.nextRoute});
+class LoginScreen extends ConsumerStatefulWidget {
+  const LoginScreen({
+    super.key,
+    required this.title,
+    this.nextRoute,
+    this.wireToBackend = false,
+  });
 
   final String title;
   final String? nextRoute;
+  final bool wireToBackend;
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+
+  bool _isLoading = false;
+  String? _errorMessage;
 
   @override
   void dispose() {
@@ -27,16 +38,42 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    if (widget.nextRoute != null) context.go(widget.nextRoute!);
+
+    if (!widget.wireToBackend) {
+      if (widget.nextRoute != null) context.go(widget.nextRoute!);
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    final result = await ref.read(authRepositoryProvider).login(
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
+        );
+
+    if (!mounted) return;
+
+    if (result.success) {
+      if (widget.nextRoute != null) context.go(widget.nextRoute!);
+      return;
+    }
+
+    setState(() {
+      _isLoading = false;
+      _errorMessage = result.message;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return BottomButtonScaffold(
-      buttonLabel: 'Log in',
-      onButtonPressed: _submit,
+      buttonLabel: _isLoading ? 'Logging in...' : 'Log in',
+      onButtonPressed: _isLoading ? () {} : _submit,
       body: Padding(
         padding: const EdgeInsets.fromLTRB(24, 32, 24, 0),
         child: Form(
@@ -45,6 +82,10 @@ class _LoginScreenState extends State<LoginScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(widget.title, style: Theme.of(context).textTheme.headlineSmall),
+              if (_errorMessage != null) ...[
+                const SizedBox(height: 12),
+                Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
+              ],
               const SizedBox(height: 24),
               AppTextField(
                 label: 'E-mail',

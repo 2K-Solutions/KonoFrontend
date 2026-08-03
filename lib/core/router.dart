@@ -37,6 +37,7 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) => const LoginScreen(
         title: 'You are doing a good job today!',
         nextRoute: AppRoutes.workerWaitForInvite,
+        wireToBackend: true,
       ),
     ),
     GoRoute(
