@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:konofrontend/core/routes.dart';
 import 'package:konofrontend/core/validators.dart';
 import 'package:konofrontend/core/widgets/app_text_field.dart';
 import 'package:konofrontend/core/widgets/bottom_button_scaffold.dart';
+import 'package:konofrontend/features/auth/data/auth_repository.dart';
 
-class WorkerRegistrationScreen extends StatefulWidget {
+class WorkerRegistrationScreen extends ConsumerStatefulWidget {
   const WorkerRegistrationScreen({super.key});
 
   @override
-  State<WorkerRegistrationScreen> createState() => _WorkerRegistrationScreenState();
+  ConsumerState<WorkerRegistrationScreen> createState() => _WorkerRegistrationScreenState();
 }
 
-class _WorkerRegistrationScreenState extends State<WorkerRegistrationScreen> {
+class _WorkerRegistrationScreenState extends ConsumerState<WorkerRegistrationScreen> {
   final _formKey = GlobalKey<FormState>();
   final _firstNameController = TextEditingController();
   final _secondNameController = TextEditingController();
@@ -20,6 +22,9 @@ class _WorkerRegistrationScreenState extends State<WorkerRegistrationScreen> {
   final _phoneNumberController = TextEditingController();
   final _passwordController = TextEditingController();
   final _repeatPasswordController = TextEditingController();
+
+  bool _isLoading = false;
+  String? _errorMessage;
 
   @override
   void dispose() {
@@ -32,22 +37,54 @@ class _WorkerRegistrationScreenState extends State<WorkerRegistrationScreen> {
     super.dispose();
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    context.go(AppRoutes.workerWaitForInvite);
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    final email = _emailController.text.trim();
+    final username = email.split('@').first;
+
+    final result = await ref.read(authRepositoryProvider).register(
+          email: email,
+          password: _passwordController.text,
+          username: username,
+          firstName: _firstNameController.text.trim(),
+          secondName: _secondNameController.text.trim(),
+          phoneNumber: _phoneNumberController.text.trim(),
+        );
+
+    if (!mounted) return;
+
+    if (result.success) {
+      context.go(AppRoutes.workerWaitForInvite);
+      return;
+    }
+
+    setState(() {
+      _isLoading = false;
+      _errorMessage = result.message;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return BottomButtonScaffold(
-      buttonLabel: 'Sign up',
-      onButtonPressed: _submit,
+      buttonLabel: _isLoading ? 'Signing up...' : 'Sign up',
+      onButtonPressed: _isLoading ? () {} : _submit,
       body: Padding(
         padding: const EdgeInsets.fromLTRB(24, 32, 24, 0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Work with us!', style: Theme.of(context).textTheme.headlineSmall),
+            if (_errorMessage != null) ...[
+              const SizedBox(height: 12),
+              Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
+            ],
             const SizedBox(height: 24),
             Expanded(
               child: SingleChildScrollView(
