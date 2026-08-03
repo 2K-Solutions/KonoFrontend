@@ -6,6 +6,7 @@ import 'package:konofrontend/core/validators.dart';
 import 'package:konofrontend/core/widgets/app_text_field.dart';
 import 'package:konofrontend/core/widgets/bottom_button_scaffold.dart';
 import 'package:konofrontend/features/auth/data/auth_repository.dart';
+import 'package:konofrontend/features/auth/data/token_storage.dart';
 
 class WorkerRegistrationScreen extends ConsumerStatefulWidget {
   const WorkerRegistrationScreen({super.key});
@@ -60,6 +61,11 @@ class _WorkerRegistrationScreenState extends ConsumerState<WorkerRegistrationScr
     if (!mounted) return;
 
     if (result.success) {
+      await ref.read(tokenStorageProvider).saveTokens(
+            accessToken: result.accessToken!,
+            refreshToken: result.refreshToken!,
+          );
+      if (!mounted) return;
       context.go(AppRoutes.workerWaitForInvite);
       return;
     }

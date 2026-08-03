@@ -6,6 +6,7 @@ import 'package:konofrontend/core/validators.dart';
 import 'package:konofrontend/core/widgets/app_text_field.dart';
 import 'package:konofrontend/core/widgets/bottom_button_scaffold.dart';
 import 'package:konofrontend/features/auth/data/auth_repository.dart';
+import 'package:konofrontend/features/auth/data/token_storage.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({
@@ -59,6 +60,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (!mounted) return;
 
     if (result.success) {
+      await ref.read(tokenStorageProvider).saveTokens(
+            accessToken: result.accessToken!,
+            refreshToken: result.refreshToken!,
+          );
+      if (!mounted) return;
       if (widget.nextRoute != null) context.go(widget.nextRoute!);
       return;
     }
