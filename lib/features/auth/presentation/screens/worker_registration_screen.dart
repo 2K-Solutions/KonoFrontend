@@ -24,7 +24,7 @@ class WorkerRegistrationScreen extends StatelessWidget {
                 child: Column(
                   children: const [
                     AppTextField(label: 'First name', hint: 'Enter your first name', maxLength: 25),
-                    AppTextField(label: 'Last name', hint: 'Enter your last name', maxLength: 25),
+                    AppTextField(label: 'Second name', hint: 'Enter your second name', maxLength: 25),
                     AppTextField(label: 'E-mail', hint: 'example@kono.rest', maxLength: 50),
                     AppTextField(
                       label: 'Phone number',
