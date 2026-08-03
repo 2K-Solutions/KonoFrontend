@@ -5,6 +5,8 @@ class AppTextField extends StatefulWidget {
     super.key,
     required this.label,
     required this.hint,
+    this.controller,
+    this.validator,
     this.obscureText = false,
     this.keyboardType,
     this.maxLength,
@@ -12,6 +14,8 @@ class AppTextField extends StatefulWidget {
 
   final String label;
   final String hint;
+  final TextEditingController? controller;
+  final FormFieldValidator<String>? validator;
   final bool obscureText;
   final TextInputType? keyboardType;
   final int? maxLength;
@@ -32,7 +36,9 @@ class _AppTextFieldState extends State<AppTextField> {
         children: [
           Text(widget.label.toUpperCase(), style: Theme.of(context).inputDecorationTheme.labelStyle),
           const SizedBox(height: 6),
-          TextField(
+          TextFormField(
+            controller: widget.controller,
+            validator: widget.validator,
             obscureText: _obscure,
             keyboardType: widget.keyboardType,
             maxLength: widget.maxLength,
