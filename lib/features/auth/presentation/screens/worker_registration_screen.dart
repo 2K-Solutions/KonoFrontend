@@ -19,6 +19,7 @@ class _WorkerRegistrationScreenState extends ConsumerState<WorkerRegistrationScr
   final _formKey = GlobalKey<FormState>();
   final _firstNameController = TextEditingController();
   final _secondNameController = TextEditingController();
+  final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
   final _phoneNumberController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -31,6 +32,7 @@ class _WorkerRegistrationScreenState extends ConsumerState<WorkerRegistrationScr
   void dispose() {
     _firstNameController.dispose();
     _secondNameController.dispose();
+    _usernameController.dispose();
     _emailController.dispose();
     _phoneNumberController.dispose();
     _passwordController.dispose();
@@ -46,13 +48,10 @@ class _WorkerRegistrationScreenState extends ConsumerState<WorkerRegistrationScr
       _errorMessage = null;
     });
 
-    final email = _emailController.text.trim();
-    final username = email.split('@').first;
-
     final result = await ref.read(authRepositoryProvider).register(
-          email: email,
+          email: _emailController.text.trim(),
           password: _passwordController.text,
-          username: username,
+          username: _usernameController.text.trim(),
           firstName: _firstNameController.text.trim(),
           secondName: _secondNameController.text.trim(),
           phoneNumber: _phoneNumberController.text.trim(),
@@ -110,6 +109,13 @@ class _WorkerRegistrationScreenState extends ConsumerState<WorkerRegistrationScr
                         hint: 'Enter your second name',
                         controller: _secondNameController,
                         validator: (value) => Validators.required(value, 'Second name'),
+                        maxLength: 25,
+                      ),
+                      AppTextField(
+                        label: 'Username',
+                        hint: 'Choose a username',
+                        controller: _usernameController,
+                        validator: (value) => Validators.required(value, 'Username'),
                         maxLength: 25,
                       ),
                       AppTextField(
