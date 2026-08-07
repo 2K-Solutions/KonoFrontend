@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:konofrontend/core/network/token_storage.dart';
 import 'package:konofrontend/core/theme.dart';
 import 'package:konofrontend/core/validators.dart';
 import 'package:konofrontend/core/widgets/app_text_field.dart';
 import 'package:konofrontend/core/widgets/bottom_button_scaffold.dart';
 import 'package:konofrontend/features/auth/data/auth_repository.dart';
-import 'package:konofrontend/features/auth/data/token_storage.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({
@@ -14,11 +14,13 @@ class LoginScreen extends ConsumerStatefulWidget {
     required this.title,
     this.nextRoute,
     this.wireToBackend = false,
+    this.isOwnerLogin = false,
   });
 
   final String title;
   final String? nextRoute;
   final bool wireToBackend;
+  final bool isOwnerLogin;
 
   @override
   ConsumerState<LoginScreen> createState() => _LoginScreenState();
@@ -52,10 +54,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       _errorMessage = null;
     });
 
-    final result = await ref.read(authRepositoryProvider).login(
-          email: _emailController.text.trim(),
-          password: _passwordController.text,
-        );
+    final repository = ref.read(authRepositoryProvider);
+    final result = widget.isOwnerLogin
+        ? await repository.loginOwner(
+            email: _emailController.text.trim(),
+            password: _passwordController.text,
+          )
+        : await repository.login(
+            email: _emailController.text.trim(),
+            password: _passwordController.text,
+          );
 
     if (!mounted) return;
 

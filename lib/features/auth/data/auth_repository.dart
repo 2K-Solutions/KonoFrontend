@@ -21,6 +21,11 @@ abstract class AuthRepository {
     required String email,
     required String password,
   });
+
+  Future<AuthResult> loginOwner({
+    required String email,
+    required String password,
+  });
 }
 
 class DioAuthRepository implements AuthRepository {
@@ -64,6 +69,22 @@ class DioAuthRepository implements AuthRepository {
     try {
       final response = await _dio.post<Map<String, dynamic>>(
         '/api/auth/login',
+        data: {'email': email, 'password': password},
+      );
+      return AuthResult.fromJson(response.data!);
+    } on DioException catch (error) {
+      return AuthResult(success: false, message: _messageFrom(error));
+    }
+  }
+
+  @override
+  Future<AuthResult> loginOwner({
+    required String email,
+    required String password,
+  }) async {
+    try {
+      final response = await _dio.post<Map<String, dynamic>>(
+        '/api/auth/owner/login',
         data: {'email': email, 'password': password},
       );
       return AuthResult.fromJson(response.data!);

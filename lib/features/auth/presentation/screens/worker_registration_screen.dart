@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:konofrontend/core/network/token_storage.dart';
 import 'package:konofrontend/core/routes.dart';
 import 'package:konofrontend/core/theme.dart';
 import 'package:konofrontend/core/validators.dart';
 import 'package:konofrontend/core/widgets/app_text_field.dart';
 import 'package:konofrontend/core/widgets/bottom_button_scaffold.dart';
 import 'package:konofrontend/features/auth/data/auth_repository.dart';
-import 'package:konofrontend/features/auth/data/token_storage.dart';
 
 class WorkerRegistrationScreen extends ConsumerStatefulWidget {
   const WorkerRegistrationScreen({super.key});

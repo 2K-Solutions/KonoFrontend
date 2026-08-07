@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:konofrontend/core/theme.dart';
 import 'package:konofrontend/core/widgets/icon_menu_card.dart';
+import 'package:konofrontend/features/owner/selected_restaurant_provider.dart';
 
-class OwnerHomeScreen extends StatelessWidget {
+class OwnerHomeScreen extends ConsumerWidget {
   const OwnerHomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final restaurant = ref.watch(selectedRestaurantProvider);
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(icon: const Icon(Icons.menu), onPressed: () {}),
@@ -19,7 +23,10 @@ class OwnerHomeScreen extends StatelessWidget {
             children: [
               Text('You are in charge', style: Theme.of(context).textTheme.headlineSmall),
               const SizedBox(height: 4),
-              Text('Manage your restaurant.', style: TextStyle(color: AppColors.textMuted)),
+              Text(
+                restaurant != null ? 'Managing ${restaurant.name}.' : 'Manage your restaurant.',
+                style: TextStyle(color: AppColors.textMuted),
+              ),
               const SizedBox(height: 24),
               Expanded(
                 child: IconMenuCard(

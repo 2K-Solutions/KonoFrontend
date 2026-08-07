@@ -7,6 +7,7 @@ import 'package:konofrontend/features/auth/presentation/screens/worker_registrat
 import 'package:konofrontend/features/auth/presentation/screens/wait_for_invite_screen.dart';
 import 'package:konofrontend/features/auth/presentation/screens/worker_profile_screen.dart';
 import 'package:konofrontend/features/owner/presentation/screens/owner_home_screen.dart';
+import 'package:konofrontend/features/owner/presentation/screens/restaurant_selection_screen.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: AppRoutes.roleSelection,
@@ -17,8 +18,16 @@ final GoRouter appRouter = GoRouter(
     ),
     GoRoute(
       path: AppRoutes.ownerLogin,
-      builder: (context, state) =>
-          const LoginScreen(title: 'Hello boss!', nextRoute: AppRoutes.ownerHome),
+      builder: (context, state) => const LoginScreen(
+        title: 'Hello boss!',
+        nextRoute: AppRoutes.restaurantSelection,
+        wireToBackend: true,
+        isOwnerLogin: true,
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.restaurantSelection,
+      builder: (context, state) => const RestaurantSelectionScreen(),
     ),
     GoRoute(
       path: AppRoutes.ownerHome,
