@@ -22,15 +22,30 @@ class OwnerHomeScreen extends StatelessWidget {
               Text('Manage your restaurant.', style: TextStyle(color: AppColors.textMuted)),
               const SizedBox(height: 24),
               Expanded(
-                child: IconMenuCard(icon: Icons.payments_outlined, label: 'Revenue', onTap: () {}),
+                child: IconMenuCard(
+                  icon: Icons.payments_outlined,
+                  label: 'Revenue',
+                  borderColor: AppColors.primary,
+                  onTap: () {},
+                ),
               ),
               const SizedBox(height: 16),
               Expanded(
-                child: IconMenuCard(icon: Icons.bar_chart, label: 'Statistics', onTap: () {}),
+                child: IconMenuCard(
+                  icon: Icons.bar_chart,
+                  label: 'Statistics',
+                  borderColor: AppColors.primary,
+                  onTap: () {},
+                ),
               ),
               const SizedBox(height: 16),
               Expanded(
-                child: IconMenuCard(icon: Icons.groups_outlined, label: 'Staff list', onTap: () {}),
+                child: IconMenuCard(
+                  icon: Icons.groups_outlined,
+                  label: 'Staff list',
+                  borderColor: AppColors.primary,
+                  onTap: () {},
+                ),
               ),
               const SizedBox(height: 72),
             ],
