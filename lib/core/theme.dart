@@ -6,6 +6,7 @@ class AppColors {
   static const textDark = Color(0xFF1A1A1A);
   static const textMuted = Color(0xFF6B6B6B);
   static const border = Color(0xFFE0E0E0);
+  static const error = Color(0xFF1D4ED8);
 }
 
 class AppDecorations {
@@ -27,6 +28,7 @@ final ThemeData appTheme = ThemeData(
   colorScheme: ColorScheme.fromSeed(
     seedColor: AppColors.primary,
     primary: AppColors.primary,
+    error: AppColors.error,
   ),
   appBarTheme: const AppBarTheme(
     backgroundColor: AppColors.primary,

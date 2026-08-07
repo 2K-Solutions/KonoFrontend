@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:konofrontend/core/routes.dart';
+import 'package:konofrontend/core/theme.dart';
 import 'package:konofrontend/core/validators.dart';
 import 'package:konofrontend/core/widgets/app_text_field.dart';
 import 'package:konofrontend/core/widgets/bottom_button_scaffold.dart';
@@ -88,7 +89,7 @@ class _WorkerRegistrationScreenState extends ConsumerState<WorkerRegistrationScr
             Text('Work with us!', style: Theme.of(context).textTheme.headlineSmall),
             if (_errorMessage != null) ...[
               const SizedBox(height: 12),
-              Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
+              Text(_errorMessage!, style: const TextStyle(color: AppColors.error)),
             ],
             const SizedBox(height: 24),
             Expanded(
