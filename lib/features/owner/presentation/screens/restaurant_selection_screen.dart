@@ -28,7 +28,7 @@ class RestaurantSelectionScreen extends ConsumerWidget {
                 'Select which restaurant you\'d like to manage.',
                 style: TextStyle(color: AppColors.textMuted),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 40),
               Expanded(
                 child: restaurants.when(
                   data: (data) => _RestaurantList(restaurants: data),
@@ -82,7 +82,7 @@ class _RestaurantList extends ConsumerWidget {
               context.go(AppRoutes.ownerHome);
             },
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
               decoration: AppDecorations.card,
               child: Row(
                 children: [
