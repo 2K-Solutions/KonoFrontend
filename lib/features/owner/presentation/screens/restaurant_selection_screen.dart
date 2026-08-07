@@ -15,6 +15,7 @@ class RestaurantSelectionScreen extends ConsumerWidget {
     final restaurants = ref.watch(myRestaurantsProvider);
 
     return Scaffold(
+      appBar: AppBar(),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
