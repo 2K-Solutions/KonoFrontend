@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:konofrontend/core/routes.dart';
 import 'package:konofrontend/core/theme.dart';
 import 'package:konofrontend/core/widgets/icon_menu_card.dart';
 import 'package:konofrontend/features/owner/selected_restaurant_provider.dart';
@@ -63,7 +65,7 @@ class OwnerHomeScreen extends ConsumerWidget {
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         elevation: 0,
-        onPressed: () {},
+        onPressed: () => context.push(AppRoutes.ownerInviteWorker),
         child: const Icon(Icons.person_add_alt_1),
       ),
     );

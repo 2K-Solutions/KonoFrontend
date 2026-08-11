@@ -10,6 +10,7 @@ class AppTextField extends StatefulWidget {
     this.obscureText = false,
     this.keyboardType,
     this.maxLength,
+    this.suffixIcon,
   });
 
   final String label;
@@ -19,6 +20,7 @@ class AppTextField extends StatefulWidget {
   final bool obscureText;
   final TextInputType? keyboardType;
   final int? maxLength;
+  final Widget? suffixIcon;
 
   @override
   State<AppTextField> createState() => _AppTextFieldState();
@@ -50,7 +52,7 @@ class _AppTextFieldState extends State<AppTextField> {
                       icon: Icon(_obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined),
                       onPressed: () => setState(() => _obscure = !_obscure),
                     )
-                  : null,
+                  : widget.suffixIcon,
             ),
           ),
         ],

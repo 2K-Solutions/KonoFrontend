@@ -5,6 +5,7 @@ class AppRoutes {
   static const ownerLogin = '/owner/login';
   static const restaurantSelection = '/owner/restaurants';
   static const ownerHome = '/owner/home';
+  static const ownerInviteWorker = '/owner/invite';
   static const workerChoice = '/worker';
   static const workerRegister = '/worker/register';
   static const workerLogin = '/worker/login';

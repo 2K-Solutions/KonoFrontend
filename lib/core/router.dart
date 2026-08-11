@@ -6,6 +6,7 @@ import 'package:konofrontend/features/auth/presentation/screens/worker_choice_sc
 import 'package:konofrontend/features/auth/presentation/screens/worker_registration_screen.dart';
 import 'package:konofrontend/features/auth/presentation/screens/wait_for_invite_screen.dart';
 import 'package:konofrontend/features/auth/presentation/screens/worker_profile_screen.dart';
+import 'package:konofrontend/features/owner/presentation/screens/invite_worker_screen.dart';
 import 'package:konofrontend/features/owner/presentation/screens/owner_home_screen.dart';
 import 'package:konofrontend/features/owner/presentation/screens/restaurant_selection_screen.dart';
 
@@ -32,6 +33,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.ownerHome,
       builder: (context, state) => const OwnerHomeScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.ownerInviteWorker,
+      builder: (context, state) => const InviteWorkerScreen(),
     ),
     GoRoute(
       path: AppRoutes.workerChoice,
