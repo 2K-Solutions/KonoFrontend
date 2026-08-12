@@ -11,6 +11,7 @@ class AppTextField extends StatefulWidget {
     this.keyboardType,
     this.maxLength,
     this.suffixIcon,
+    this.onChanged,
   });
 
   final String label;
@@ -21,6 +22,7 @@ class AppTextField extends StatefulWidget {
   final TextInputType? keyboardType;
   final int? maxLength;
   final Widget? suffixIcon;
+  final ValueChanged<String>? onChanged;
 
   @override
   State<AppTextField> createState() => _AppTextFieldState();
@@ -41,6 +43,7 @@ class _AppTextFieldState extends State<AppTextField> {
           TextFormField(
             controller: widget.controller,
             validator: widget.validator,
+            onChanged: widget.onChanged,
             obscureText: _obscure,
             keyboardType: widget.keyboardType,
             maxLength: widget.maxLength,
