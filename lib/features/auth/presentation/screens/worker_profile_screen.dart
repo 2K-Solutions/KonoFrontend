@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:konofrontend/core/theme.dart';
 import 'package:konofrontend/core/widgets/app_text_field.dart';
 import 'package:konofrontend/core/widgets/bottom_button_scaffold.dart';
+import 'package:konofrontend/core/widgets/tappable_card.dart';
 
 class WorkerProfileScreen extends StatelessWidget {
   const WorkerProfileScreen({super.key});
@@ -70,29 +71,21 @@ class WorkerProfileScreen extends StatelessWidget {
               maxLength: 15,
             ),
             const SizedBox(height: 8),
-            Material(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8),
-              child: InkWell(
-                onTap: () {},
-                borderRadius: BorderRadius.circular(8),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                  decoration: AppDecorations.card,
-                  child: const Row(
-                    children: [
-                      Icon(Icons.lock_outline, color: AppColors.primary),
-                      SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          'Change password',
-                          style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w700),
-                        ),
-                      ),
-                      Icon(Icons.chevron_right, color: AppColors.primary),
-                    ],
+            TappableCard(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              onTap: () {},
+              child: const Row(
+                children: [
+                  Icon(Icons.lock_outline, color: AppColors.primary),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Change password',
+                      style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w700),
+                    ),
                   ),
-                ),
+                  Icon(Icons.chevron_right, color: AppColors.primary),
+                ],
               ),
             ),
             const SizedBox(height: 24),

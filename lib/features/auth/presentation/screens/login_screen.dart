@@ -103,7 +103,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               const SizedBox(height: 24),
               AppTextField(
                 label: 'E-mail',
-                hint: 'owner@kono.rest',
+                hint: widget.isOwnerLogin ? 'owner@kono.rest' : 'worker@kono.rest',
                 controller: _emailController,
                 validator: Validators.email,
                 keyboardType: TextInputType.emailAddress,

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:konofrontend/core/routes.dart';
 import 'package:konofrontend/core/theme.dart';
+import 'package:konofrontend/core/widgets/tappable_card.dart';
 import 'package:konofrontend/features/owner/data/restaurant_repository.dart';
 import 'package:konofrontend/features/owner/domain/restaurant.dart';
 import 'package:konofrontend/features/owner/selected_restaurant_provider.dart';
@@ -72,32 +73,24 @@ class _RestaurantList extends ConsumerWidget {
       separatorBuilder: (context, index) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
         final restaurant = restaurants[index];
-        return Material(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(8),
-            onTap: () {
-              ref.read(selectedRestaurantProvider.notifier).select(restaurant);
-              context.go(AppRoutes.ownerHome);
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-              decoration: AppDecorations.card,
-              child: Row(
-                children: [
-                  const Icon(Icons.storefront_outlined, color: AppColors.primary),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      restaurant.name,
-                      style: const TextStyle(fontWeight: FontWeight.w700, color: AppColors.textDark),
-                    ),
-                  ),
-                  const Icon(Icons.chevron_right, color: AppColors.primary),
-                ],
+        return TappableCard(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+          onTap: () {
+            ref.read(selectedRestaurantProvider.notifier).select(restaurant);
+            context.go(AppRoutes.ownerHome);
+          },
+          child: Row(
+            children: [
+              const Icon(Icons.storefront_outlined, color: AppColors.primary),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  restaurant.name,
+                  style: const TextStyle(fontWeight: FontWeight.w700, color: AppColors.textDark),
+                ),
               ),
-            ),
+              const Icon(Icons.chevron_right, color: AppColors.primary),
+            ],
           ),
         );
       },
