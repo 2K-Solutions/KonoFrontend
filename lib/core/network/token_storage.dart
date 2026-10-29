@@ -1,8 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:konofrontend/core/network/jwt_claims.dart';
 
 final tokenStorageProvider = Provider<TokenStorage>((ref) {
   return TokenStorage(const FlutterSecureStorage());
+});
+
+final accessTokenClaimsProvider = FutureProvider.autoDispose<Map<String, dynamic>?>((ref) async {
+  final accessToken = await ref.watch(tokenStorageProvider).getAccessToken();
+  return decodeJwtPayload(accessToken);
 });
 
 class TokenStorage {

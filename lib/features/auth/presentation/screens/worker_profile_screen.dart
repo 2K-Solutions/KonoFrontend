@@ -1,15 +1,79 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:konofrontend/core/network/token_storage.dart';
+import 'package:konofrontend/core/routes.dart';
 import 'package:konofrontend/core/theme.dart';
 import 'package:konofrontend/core/widgets/app_text_field.dart';
 import 'package:konofrontend/core/widgets/bottom_button_scaffold.dart';
 import 'package:konofrontend/core/widgets/tappable_card.dart';
+import 'package:konofrontend/features/auth/data/logout.dart';
+import 'package:konofrontend/features/worker/data/invite_repository.dart';
 
-class WorkerProfileScreen extends StatelessWidget {
+class WorkerProfileScreen extends ConsumerStatefulWidget {
   const WorkerProfileScreen({super.key});
+
+  @override
+  ConsumerState<WorkerProfileScreen> createState() => _WorkerProfileScreenState();
+}
+
+class _WorkerProfileScreenState extends ConsumerState<WorkerProfileScreen> {
+  bool _isLeaving = false;
+
+  Future<void> _logout() async {
+    await logout(ref);
+    if (!mounted) return;
+    context.go(AppRoutes.roleSelection);
+  }
+
+  Future<void> _leaveRestaurant() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Leave restaurant?'),
+        content: const Text(
+          'You will lose access to the floor system until an owner invites you again.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Leave', style: TextStyle(fontWeight: FontWeight.w700)),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    setState(() => _isLeaving = true);
+
+    final result = await ref.read(inviteRepositoryProvider).abandonRestaurant();
+
+    if (!mounted) return;
+
+    if (result.success) {
+      // Startup refreshes the token so the new account type routes to the invites screen.
+      context.go(AppRoutes.startup);
+      return;
+    }
+
+    setState(() => _isLeaving = false);
+    _showMessage(result.message);
+  }
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
+  }
 
   @override
   Widget build(BuildContext context) {
     final labelStyle = Theme.of(context).inputDecorationTheme.labelStyle;
+    final isWorker = ref.watch(accessTokenClaimsProvider).value?['accountType'] == 'worker';
 
     return BottomButtonScaffold(
       buttonLabel: 'Save changes',
@@ -70,25 +134,7 @@ class WorkerProfileScreen extends StatelessWidget {
               keyboardType: TextInputType.phone,
               maxLength: 15,
             ),
-            const SizedBox(height: 8),
-            TappableCard(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              onTap: () {},
-              child: const Row(
-                children: [
-                  Icon(Icons.lock_outline, color: AppColors.primary),
-                  SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      'Change password',
-                      style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w700),
-                    ),
-                  ),
-                  Icon(Icons.chevron_right, color: AppColors.primary),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
             Text('SETTINGS', style: labelStyle),
             const SizedBox(height: 12),
             Container(
@@ -121,6 +167,48 @@ class WorkerProfileScreen extends StatelessWidget {
                 ],
               ),
             ),
+            const SizedBox(height: 24),
+            TappableCard(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              onTap: _logout,
+              child: const Row(
+                children: [
+                  Icon(Icons.logout, color: AppColors.primary),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Log out',
+                      style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (isWorker) ...[
+              const SizedBox(height: 12),
+              TappableCard(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                onTap: _isLeaving ? null : _leaveRestaurant,
+                child: Row(
+                  children: [
+                    _isLeaving
+                        ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.exit_to_app, color: AppColors.primary),
+                    const SizedBox(width: 12),
+                    const Expanded(
+                      child: Text(
+                        'Leave restaurant',
+                        style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ],
         ),
       ),

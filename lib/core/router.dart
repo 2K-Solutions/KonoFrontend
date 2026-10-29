@@ -2,17 +2,25 @@ import 'package:go_router/go_router.dart';
 import 'package:konofrontend/core/routes.dart';
 import 'package:konofrontend/features/auth/presentation/screens/login_screen.dart';
 import 'package:konofrontend/features/auth/presentation/screens/role_selection_screen.dart';
+import 'package:konofrontend/features/auth/presentation/screens/startup_screen.dart';
 import 'package:konofrontend/features/auth/presentation/screens/worker_choice_screen.dart';
 import 'package:konofrontend/features/auth/presentation/screens/worker_registration_screen.dart';
-import 'package:konofrontend/features/auth/presentation/screens/wait_for_invite_screen.dart';
 import 'package:konofrontend/features/auth/presentation/screens/worker_profile_screen.dart';
 import 'package:konofrontend/features/owner/presentation/screens/invite_worker_screen.dart';
 import 'package:konofrontend/features/owner/presentation/screens/owner_home_screen.dart';
 import 'package:konofrontend/features/owner/presentation/screens/restaurant_selection_screen.dart';
+import 'package:konofrontend/features/worker/domain/menu_item.dart';
+import 'package:konofrontend/features/worker/presentation/screens/menu_screen.dart';
+import 'package:konofrontend/features/worker/presentation/screens/worker_home_screen.dart';
+import 'package:konofrontend/features/worker/presentation/screens/worker_invites_screen.dart';
 
 final GoRouter appRouter = GoRouter(
-  initialLocation: AppRoutes.roleSelection,
+  initialLocation: AppRoutes.startup,
   routes: [
+    GoRoute(
+      path: AppRoutes.startup,
+      builder: (context, state) => const StartupScreen(),
+    ),
     GoRoute(
       path: AppRoutes.roleSelection,
       builder: (context, state) => const RoleSelectionScreen(),
@@ -50,13 +58,25 @@ final GoRouter appRouter = GoRouter(
       path: AppRoutes.workerLogin,
       builder: (context, state) => const LoginScreen(
         title: 'You are doing a good job today!',
-        nextRoute: AppRoutes.workerWaitForInvite,
+        nextRoute: AppRoutes.workerInvites,
         wireToBackend: true,
       ),
     ),
     GoRoute(
-      path: AppRoutes.workerWaitForInvite,
-      builder: (context, state) => const WaitForInviteScreen(),
+      path: AppRoutes.workerInvites,
+      builder: (context, state) => const WorkerInvitesScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.workerHome,
+      builder: (context, state) => const WorkerHomeScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.workerDrinks,
+      builder: (context, state) => const MenuScreen(category: MenuCategory.drinks),
+    ),
+    GoRoute(
+      path: AppRoutes.workerFood,
+      builder: (context, state) => const MenuScreen(category: MenuCategory.food),
     ),
     GoRoute(
       path: AppRoutes.workerProfile,

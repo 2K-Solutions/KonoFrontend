@@ -17,15 +17,16 @@ abstract class AuthRepository {
     required String phoneNumber,
   });
 
-  Future<AuthResult> login({
-    required String email,
-    required String password,
-  });
+  Future<AuthResult> login({required String email, required String password});
 
   Future<AuthResult> loginOwner({
     required String email,
     required String password,
   });
+
+  Future<AuthResult> refresh(String refreshToken);
+
+  Future<void> logout(String refreshToken);
 }
 
 class DioAuthRepository implements AuthRepository {
@@ -44,7 +45,7 @@ class DioAuthRepository implements AuthRepository {
   }) async {
     try {
       final response = await _dio.post<Map<String, dynamic>>(
-        '/api/auth/register',
+        '/api/Auth/user/register',
         data: {
           'email': email,
           'password': password,
@@ -68,7 +69,7 @@ class DioAuthRepository implements AuthRepository {
   }) async {
     try {
       final response = await _dio.post<Map<String, dynamic>>(
-        '/api/auth/login',
+        '/api/Auth/user/login',
         data: {'email': email, 'password': password},
       );
       return AuthResult.fromJson(response.data!);
@@ -84,12 +85,38 @@ class DioAuthRepository implements AuthRepository {
   }) async {
     try {
       final response = await _dio.post<Map<String, dynamic>>(
-        '/api/auth/owner/login',
+        '/api/Auth/owner/login',
         data: {'email': email, 'password': password},
       );
       return AuthResult.fromJson(response.data!);
     } on DioException catch (error) {
       return AuthResult(success: false, message: _messageFrom(error));
+    }
+  }
+
+  @override
+  Future<AuthResult> refresh(String refreshToken) async {
+    try {
+      final response = await _dio.post<Map<String, dynamic>>(
+        '/api/Auth/refresh',
+        data: {'refreshToken': refreshToken},
+      );
+      return AuthResult.fromJson(response.data!);
+    } on DioException catch (error) {
+      if (error.response == null) rethrow;
+      return AuthResult(success: false, message: _messageFrom(error));
+    }
+  }
+
+  @override
+  Future<void> logout(String refreshToken) async {
+    try {
+      await _dio.post<Map<String, dynamic>>(
+        '/api/Auth/logout',
+        data: {'refreshToken': refreshToken},
+      );
+    } on DioException {
+      return;
     }
   }
 

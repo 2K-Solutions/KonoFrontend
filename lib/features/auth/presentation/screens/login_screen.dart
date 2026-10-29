@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:konofrontend/core/network/token_storage.dart';
+import 'package:konofrontend/core/routes.dart';
 import 'package:konofrontend/core/theme.dart';
 import 'package:konofrontend/core/validators.dart';
 import 'package:konofrontend/core/widgets/app_text_field.dart';
@@ -73,7 +74,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             refreshToken: result.refreshToken!,
           );
       if (!mounted) return;
-      if (widget.nextRoute != null) context.go(widget.nextRoute!);
+      context.go(AppRoutes.homeFor(result.accountType));
       return;
     }
 
