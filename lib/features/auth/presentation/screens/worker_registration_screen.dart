@@ -66,7 +66,7 @@ class _WorkerRegistrationScreenState extends ConsumerState<WorkerRegistrationScr
             refreshToken: result.refreshToken!,
           );
       if (!mounted) return;
-      context.go(AppRoutes.workerWaitForInvite);
+      context.go(AppRoutes.workerInvites);
       return;
     }
 

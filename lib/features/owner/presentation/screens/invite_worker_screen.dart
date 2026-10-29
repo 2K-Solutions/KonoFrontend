@@ -7,6 +7,7 @@ import 'package:konofrontend/core/widgets/app_text_field.dart';
 import 'package:konofrontend/core/widgets/tappable_card.dart';
 import 'package:konofrontend/features/owner/data/restaurant_repository.dart';
 import 'package:konofrontend/features/owner/domain/worker_search_result.dart';
+import 'package:konofrontend/features/owner/selected_restaurant_provider.dart';
 
 class InviteWorkerScreen extends ConsumerStatefulWidget {
   const InviteWorkerScreen({super.key});
@@ -20,6 +21,8 @@ class _InviteWorkerScreenState extends ConsumerState<InviteWorkerScreen> {
   Timer? _debounce;
   List<WorkerSearchResult> _results = [];
   bool _isLoading = false;
+  String? _invitingUserId;
+  final Set<String> _invitedUserIds = {};
 
   @override
   void dispose() {
@@ -58,6 +61,35 @@ class _InviteWorkerScreenState extends ConsumerState<InviteWorkerScreen> {
         _isLoading = false;
       });
     }
+  }
+
+  Future<void> _invite(WorkerSearchResult worker) async {
+    final restaurant = ref.read(selectedRestaurantProvider);
+    if (restaurant == null) {
+      _showMessage('Select a restaurant before inviting workers.');
+      return;
+    }
+
+    setState(() => _invitingUserId = worker.id);
+
+    final result = await ref.read(restaurantRepositoryProvider).inviteWorker(
+          restaurantId: restaurant.id,
+          userId: worker.id,
+        );
+
+    if (!mounted) return;
+
+    setState(() {
+      _invitingUserId = null;
+      if (result.success) _invitedUserIds.add(worker.id);
+    });
+    _showMessage(result.success ? 'Invite sent to ${worker.username}.' : result.message);
+  }
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -101,7 +133,13 @@ class _InviteWorkerScreenState extends ConsumerState<InviteWorkerScreen> {
                           ],
                         ),
                         const SizedBox(height: 12),
-                        for (final worker in _results) _WorkerResultCard(worker: worker),
+                        for (final worker in _results)
+                          _WorkerResultCard(
+                            worker: worker,
+                            isInviting: _invitingUserId == worker.id,
+                            isInvited: _invitedUserIds.contains(worker.id),
+                            onInvite: () => _invite(worker),
+                          ),
                       ],
                       const SizedBox(height: 24),
                       const _SearchInfoBox(),
@@ -118,9 +156,17 @@ class _InviteWorkerScreenState extends ConsumerState<InviteWorkerScreen> {
 }
 
 class _WorkerResultCard extends StatelessWidget {
-  const _WorkerResultCard({required this.worker});
+  const _WorkerResultCard({
+    required this.worker,
+    required this.isInviting,
+    required this.isInvited,
+    required this.onInvite,
+  });
 
   final WorkerSearchResult worker;
+  final bool isInviting;
+  final bool isInvited;
+  final VoidCallback onInvite;
 
   @override
   Widget build(BuildContext context) {
@@ -152,12 +198,20 @@ class _WorkerResultCard extends StatelessWidget {
             ),
             const SizedBox(width: 12),
             ElevatedButton.icon(
-              onPressed: null,
-              icon: const Icon(Icons.mail_outline, size: 16),
-              label: const Text('Invite'),
+              onPressed: isInviting || isInvited ? null : onInvite,
+              icon: isInviting
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                    )
+                  : Icon(isInvited ? Icons.check : Icons.mail_outline, size: 16),
+              label: Text(isInvited ? 'Invited' : 'Invite'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.success,
                 foregroundColor: Colors.white,
+                disabledBackgroundColor: AppColors.success.withValues(alpha: isInviting ? 1 : 0.15),
+                disabledForegroundColor: isInviting ? Colors.white : AppColors.success,
                 minimumSize: const Size(0, 36),
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),

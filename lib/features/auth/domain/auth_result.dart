@@ -1,3 +1,5 @@
+import 'package:konofrontend/core/network/jwt_claims.dart';
+
 class AuthResult {
   const AuthResult({
     required this.success,
@@ -8,10 +10,11 @@ class AuthResult {
   });
 
   factory AuthResult.fromJson(Map<String, dynamic> json) {
+    final accessToken = json['accessToken'] as String?;
     return AuthResult(
-      success: json['success'] as bool? ?? false,
+      success: json['success'] as bool? ?? (accessToken != null && accessToken.isNotEmpty),
       message: json['message'] as String? ?? '',
-      accessToken: json['accessToken'] as String?,
+      accessToken: accessToken,
       refreshToken: json['refreshToken'] as String?,
       userId: json['userId'] as String?,
     );
@@ -22,4 +25,6 @@ class AuthResult {
   final String? accessToken;
   final String? refreshToken;
   final String? userId;
+
+  String? get accountType => decodeJwtPayload(accessToken)?['accountType'] as String?;
 }
