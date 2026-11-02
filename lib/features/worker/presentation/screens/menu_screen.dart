@@ -19,9 +19,10 @@ class MenuScreen extends ConsumerStatefulWidget {
 class _MenuScreenState extends ConsumerState<MenuScreen> {
   final _searchController = TextEditingController();
   final Map<String, int> _quantities = {};
+  late MenuCategory _category = widget.category;
   String _query = '';
 
-  bool get _isDrinks => widget.category == MenuCategory.drinks;
+  bool get _isDrinks => _category == MenuCategory.drinks;
 
   @override
   void dispose() {
@@ -40,12 +41,33 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
     });
   }
 
+  void _switchCategory() {
+    setState(() {
+      _category = _isDrinks ? MenuCategory.food : MenuCategory.drinks;
+      _searchController.clear();
+      _query = '';
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    final items = ref.watch(menuItemsProvider(widget.category));
+    final items = ref.watch(menuItemsProvider(_category));
 
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        actions: [
+          TextButton.icon(
+            onPressed: _switchCategory,
+            icon: Icon(_isDrinks ? Icons.restaurant_outlined : Icons.local_bar_outlined),
+            label: Text(_isDrinks ? 'Food' : 'Drinks'),
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.white,
+              textStyle: const TextStyle(fontWeight: FontWeight.w700),
+            ),
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
