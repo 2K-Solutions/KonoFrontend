@@ -1,5 +1,5 @@
 class ApiConfig {
   const ApiConfig._();
 
-  static const baseUrl = 'http://127.0.0.1:5000';
+  static const baseUrl = 'http://192.168.1.207:5000';
 }
