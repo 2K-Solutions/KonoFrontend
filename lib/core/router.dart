@@ -9,8 +9,12 @@ import 'package:konofrontend/features/auth/presentation/screens/worker_profile_s
 import 'package:konofrontend/features/owner/presentation/screens/invite_worker_screen.dart';
 import 'package:konofrontend/features/owner/presentation/screens/owner_home_screen.dart';
 import 'package:konofrontend/features/owner/presentation/screens/restaurant_selection_screen.dart';
+import 'package:konofrontend/features/worker/data/order_draft.dart';
 import 'package:konofrontend/features/worker/domain/menu_item.dart';
+import 'package:konofrontend/features/worker/presentation/screens/current_order_screen.dart';
+import 'package:konofrontend/features/worker/presentation/screens/edit_order_screen.dart';
 import 'package:konofrontend/features/worker/presentation/screens/menu_screen.dart';
+import 'package:konofrontend/features/worker/presentation/screens/worker_tables_screen.dart';
 import 'package:konofrontend/features/worker/presentation/screens/worker_home_screen.dart';
 import 'package:konofrontend/features/worker/presentation/screens/worker_invites_screen.dart';
 
@@ -72,11 +76,29 @@ final GoRouter appRouter = GoRouter(
     ),
     GoRoute(
       path: AppRoutes.workerDrinks,
-      builder: (context, state) => const MenuScreen(category: MenuCategory.drinks),
+      builder: (context, state) => MenuScreen(
+        category: MenuCategory.drinks,
+        draftKey: state.uri.queryParameters['order'] ?? currentOrderKey,
+      ),
     ),
     GoRoute(
       path: AppRoutes.workerFood,
-      builder: (context, state) => const MenuScreen(category: MenuCategory.food),
+      builder: (context, state) => MenuScreen(
+        category: MenuCategory.food,
+        draftKey: state.uri.queryParameters['order'] ?? currentOrderKey,
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.workerCurrentOrder,
+      builder: (context, state) => const CurrentOrderScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.workerTables,
+      builder: (context, state) => const WorkerTablesScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.workerEditOrder,
+      builder: (context, state) => EditOrderScreen(orderId: state.pathParameters['orderId']!),
     ),
     GoRoute(
       path: AppRoutes.workerProfile,

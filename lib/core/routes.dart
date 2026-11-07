@@ -15,6 +15,16 @@ class AppRoutes {
   static const workerHome = '/worker/home';
   static const workerDrinks = '/worker/menu/drinks';
   static const workerFood = '/worker/menu/food';
+  static const workerCurrentOrder = '/worker/order';
+  static const workerTables = '/worker/tables';
+  static const workerEditOrder = '/worker/orders/:orderId';
+
+  static String workerEditOrderFor(String orderId) => '/worker/orders/$orderId';
+
+  // A menu route ([workerDrinks] or [workerFood]) that adds items to the given order being edited
+  // instead of the order currently being taken.
+  static String workerMenuFor(String menuRoute, {required String orderId}) =>
+      Uri(path: menuRoute, queryParameters: {'order': orderId}).toString();
 
   static String homeFor(String? accountType) {
     return switch (accountType) {
