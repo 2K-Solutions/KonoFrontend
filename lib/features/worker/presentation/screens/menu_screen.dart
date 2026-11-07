@@ -1,16 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:konofrontend/core/routes.dart';
 import 'package:konofrontend/core/theme.dart';
 import 'package:konofrontend/core/widgets/app_text_field.dart';
 import 'package:konofrontend/core/widgets/bottom_action_bar.dart';
+import 'package:konofrontend/core/widgets/square_icon_button.dart';
 import 'package:konofrontend/features/worker/data/menu_sync.dart';
+import 'package:konofrontend/features/worker/data/order_draft.dart';
 import 'package:konofrontend/features/worker/domain/menu_item.dart';
+import 'package:konofrontend/features/worker/presentation/send_order.dart';
+import 'package:konofrontend/features/worker/presentation/widgets/item_note_dialog.dart';
 
 class MenuScreen extends ConsumerStatefulWidget {
-  const MenuScreen({super.key, required this.category});
+  const MenuScreen({super.key, required this.category, this.draftKey = currentOrderKey});
 
   final MenuCategory category;
+  // Which order the picked items go to: the one being taken, or the id of an order being edited.
+  final String draftKey;
 
   @override
   ConsumerState<MenuScreen> createState() => _MenuScreenState();
@@ -18,14 +25,17 @@ class MenuScreen extends ConsumerStatefulWidget {
 
 class _MenuScreenState extends ConsumerState<MenuScreen> {
   final _searchController = TextEditingController();
-  final Map<String, int> _quantities = {};
   late MenuCategory _category = widget.category;
   String _query = '';
   // Shown while a new search runs so the list doesn't flash a spinner on every keystroke.
   List<MenuItem>? _previousItems;
   bool _isCheckingMenu = false;
+  bool _isSending = false;
 
   bool get _isDrinks => _category == MenuCategory.drinks;
+  bool get _isEditingOrder => widget.draftKey != currentOrderKey;
+
+  OrderDraftNotifier get _draftNotifier => ref.read(orderDraftProvider(widget.draftKey).notifier);
 
   @override
   void dispose() {
@@ -33,15 +43,22 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
     super.dispose();
   }
 
-  void _changeQuantity(MenuItem item, int delta) {
-    setState(() {
-      final quantity = (_quantities[item.id] ?? 0) + delta;
-      if (quantity <= 0) {
-        _quantities.remove(item.id);
-      } else {
-        _quantities[item.id] = quantity;
-      }
-    });
+  Future<void> _editNote(MenuItem item) async {
+    final draft = ref.read(orderDraftProvider(widget.draftKey));
+    final note = await showItemNoteDialog(context, itemName: item.name, initialNote: draft.noteOf(item.id));
+    if (note == null || !mounted) return;
+    // Adding a note to an item that isn't ordered yet orders one; an empty note there is a no-op.
+    if (note.isEmpty && draft.quantityOf(item.id) == 0) return;
+    _draftNotifier.setItemNote(item, note);
+  }
+
+  Future<void> _confirm() async {
+    if (_isSending) return;
+    setState(() => _isSending = true);
+    final completed = await sendCurrentOrder(context, ref, OrderPart.all);
+    if (!mounted) return;
+    setState(() => _isSending = false);
+    if (completed) context.go(AppRoutes.workerHome);
   }
 
   void _switchCategory() {
@@ -73,9 +90,13 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
   Widget build(BuildContext context) {
     final items = ref.watch(menuItemsProvider((category: _category, query: _query)));
     if (items.hasValue) _previousItems = items.value;
+    final draft = ref.watch(orderDraftProvider(widget.draftKey));
 
     return Scaffold(
       appBar: AppBar(
+        bottom: _isSending
+            ? const PreferredSize(preferredSize: Size.fromHeight(4), child: LinearProgressIndicator())
+            : null,
         actions: [
           IconButton(
             onPressed: _isCheckingMenu ? null : _checkMenu,
@@ -113,10 +134,10 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
               const SizedBox(height: 24),
               Expanded(
                 child: items.when(
-                  data: (data) => _buildList(data),
+                  data: (data) => _buildList(data, draft),
                   loading: () => _previousItems == null
                       ? const Center(child: CircularProgressIndicator())
-                      : _buildList(_previousItems!),
+                      : _buildList(_previousItems!, draft),
                   error: (error, _) => const Center(
                     child: Text(
                       'Could not load the menu. Please try again.',
@@ -141,19 +162,32 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
       bottomNavigationBar: BottomActionBar(
         actions: [
           BottomAction(icon: Icons.arrow_back, label: 'Back', onTap: () => context.pop()),
-          BottomAction(icon: Icons.receipt_long_outlined, label: 'Order', onTap: () {}),
-          BottomAction(
-            icon: Icons.check_circle_outline,
-            label: 'Confirm',
-            color: AppColors.success,
-            onTap: () {},
-          ),
+          if (_isEditingOrder)
+            BottomAction(
+              icon: Icons.check_circle_outline,
+              label: 'Done',
+              color: AppColors.success,
+              onTap: () => context.pop(),
+            )
+          else ...[
+            BottomAction(
+              icon: Icons.receipt_long_outlined,
+              label: draft.isEmpty ? 'Order' : 'Order (${draft.itemCount})',
+              onTap: () => context.push(AppRoutes.workerCurrentOrder),
+            ),
+            BottomAction(
+              icon: Icons.check_circle_outline,
+              label: 'Send all',
+              color: AppColors.success,
+              onTap: _confirm,
+            ),
+          ],
         ],
       ),
     );
   }
 
-  Widget _buildList(List<MenuItem> items) {
+  Widget _buildList(List<MenuItem> items, OrderDraft draft) {
     if (items.isEmpty && _query.isEmpty) {
       return _EmptyMessage(_isDrinks ? 'No drinks on the menu yet.' : 'No food on the menu yet.');
     }
@@ -168,10 +202,11 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
         final item = items[index];
         return _MenuItemRow(
           item: item,
-          quantity: _quantities[item.id] ?? 0,
-          onAdd: () => _changeQuantity(item, 1),
-          onRemove: () => _changeQuantity(item, -1),
-          onEdit: () {},
+          quantity: draft.quantityOf(item.id),
+          hasNote: draft.noteOf(item.id).isNotEmpty,
+          onAdd: () => _draftNotifier.changeItemQuantity(item, 1),
+          onRemove: () => _draftNotifier.changeItemQuantity(item, -1),
+          onEdit: () => _editNote(item),
         );
       },
     );
@@ -182,6 +217,7 @@ class _MenuItemRow extends StatelessWidget {
   const _MenuItemRow({
     required this.item,
     required this.quantity,
+    required this.hasNote,
     required this.onAdd,
     required this.onRemove,
     required this.onEdit,
@@ -189,6 +225,7 @@ class _MenuItemRow extends StatelessWidget {
 
   final MenuItem item;
   final int quantity;
+  final bool hasNote;
   final VoidCallback onAdd;
   final VoidCallback onRemove;
   final VoidCallback onEdit;
@@ -206,7 +243,7 @@ class _MenuItemRow extends StatelessWidget {
       ),
       child: Row(
         children: [
-          _StepButton(icon: Icons.remove, onPressed: isSelected ? onRemove : null),
+          SquareIconButton(icon: Icons.remove, onPressed: isSelected ? onRemove : null),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -234,43 +271,12 @@ class _MenuItemRow extends StatelessWidget {
             ),
           IconButton(
             onPressed: onEdit,
-            icon: const Icon(Icons.edit_outlined),
-            color: AppColors.textMuted,
-            tooltip: 'Add note',
+            icon: Icon(hasNote ? Icons.edit_note : Icons.edit_outlined),
+            color: hasNote ? AppColors.primary : AppColors.textMuted,
+            tooltip: hasNote ? 'Edit note' : 'Add note',
           ),
-          _StepButton(icon: Icons.add, onPressed: onAdd, filled: true),
+          SquareIconButton(icon: Icons.add, onPressed: onAdd, filled: true),
         ],
-      ),
-    );
-  }
-}
-
-class _StepButton extends StatelessWidget {
-  const _StepButton({required this.icon, required this.onPressed, this.filled = false});
-
-  final IconData icon;
-  final VoidCallback? onPressed;
-  final bool filled;
-
-  @override
-  Widget build(BuildContext context) {
-    final color = onPressed == null ? AppColors.primary.withValues(alpha: 0.3) : AppColors.primary;
-    final shape = RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(6),
-      side: filled ? BorderSide.none : BorderSide(color: color),
-    );
-
-    return SizedBox(
-      width: 40,
-      height: 40,
-      child: Material(
-        color: filled ? color : Colors.white,
-        shape: shape,
-        child: InkWell(
-          onTap: onPressed,
-          customBorder: shape,
-          child: Icon(icon, color: filled ? Colors.white : color, size: 20),
-        ),
       ),
     );
   }
