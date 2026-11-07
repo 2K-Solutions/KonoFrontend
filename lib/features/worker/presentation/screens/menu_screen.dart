@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:konofrontend/core/theme.dart';
 import 'package:konofrontend/core/widgets/app_text_field.dart';
 import 'package:konofrontend/core/widgets/bottom_action_bar.dart';
-import 'package:konofrontend/features/worker/data/menu_repository.dart';
+import 'package:konofrontend/features/worker/data/menu_sync.dart';
 import 'package:konofrontend/features/worker/domain/menu_item.dart';
 
 class MenuScreen extends ConsumerStatefulWidget {
@@ -19,9 +19,13 @@ class MenuScreen extends ConsumerStatefulWidget {
 class _MenuScreenState extends ConsumerState<MenuScreen> {
   final _searchController = TextEditingController();
   final Map<String, int> _quantities = {};
+  late MenuCategory _category = widget.category;
   String _query = '';
+  // Shown while a new search runs so the list doesn't flash a spinner on every keystroke.
+  List<MenuItem>? _previousItems;
+  bool _isCheckingMenu = false;
 
-  bool get _isDrinks => widget.category == MenuCategory.drinks;
+  bool get _isDrinks => _category == MenuCategory.drinks;
 
   @override
   void dispose() {
@@ -40,12 +44,63 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
     });
   }
 
+  void _switchCategory() {
+    setState(() {
+      _category = _isDrinks ? MenuCategory.food : MenuCategory.drinks;
+      _searchController.clear();
+      _query = '';
+      _previousItems = null;
+    });
+  }
+
+  Future<void> _checkMenu() async {
+    setState(() => _isCheckingMenu = true);
+    final result = await ref.read(menuSyncProvider.notifier).checkForUpdates();
+    if (!mounted) return;
+    setState(() => _isCheckingMenu = false);
+
+    final message = switch (result) {
+      MenuCheckResult.upToDate => 'The menu is up to date.',
+      MenuCheckResult.updated => 'The menu has been updated.',
+      MenuCheckResult.failed => 'Could not check the menu. Please try again.',
+    };
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
+  }
+
   @override
   Widget build(BuildContext context) {
-    final items = ref.watch(menuItemsProvider(widget.category));
+    final items = ref.watch(menuItemsProvider((category: _category, query: _query)));
+    if (items.hasValue) _previousItems = items.value;
 
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        actions: [
+          IconButton(
+            onPressed: _isCheckingMenu ? null : _checkMenu,
+            tooltip: 'Check for menu updates',
+            color: Colors.white,
+            icon: _isCheckingMenu
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                  )
+                : const Icon(Icons.sync),
+          ),
+          TextButton.icon(
+            onPressed: _switchCategory,
+            icon: Icon(_isDrinks ? Icons.restaurant_outlined : Icons.local_bar_outlined),
+            label: Text(_isDrinks ? 'Food' : 'Drinks'),
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.white,
+              textStyle: const TextStyle(fontWeight: FontWeight.w700),
+            ),
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
@@ -59,7 +114,9 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
               Expanded(
                 child: items.when(
                   data: (data) => _buildList(data),
-                  loading: () => const Center(child: CircularProgressIndicator()),
+                  loading: () => _previousItems == null
+                      ? const Center(child: CircularProgressIndicator())
+                      : _buildList(_previousItems!),
                   error: (error, _) => const Center(
                     child: Text(
                       'Could not load the menu. Please try again.',
@@ -74,7 +131,7 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
                 label: _isDrinks ? 'Search drinks' : 'Search food',
                 hint: _isDrinks ? 'Drink name' : 'Dish name',
                 controller: _searchController,
-                onChanged: (value) => setState(() => _query = value.trim().toLowerCase()),
+                onChanged: (value) => setState(() => _query = value.trim()),
                 suffixIcon: const Icon(Icons.search),
               ),
             ],
@@ -97,20 +154,18 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
   }
 
   Widget _buildList(List<MenuItem> items) {
-    if (items.isEmpty) {
+    if (items.isEmpty && _query.isEmpty) {
       return _EmptyMessage(_isDrinks ? 'No drinks on the menu yet.' : 'No food on the menu yet.');
     }
-
-    final filtered = items.where((item) => item.name.toLowerCase().contains(_query)).toList();
-    if (filtered.isEmpty) {
+    if (items.isEmpty) {
       return _EmptyMessage(_isDrinks ? 'No drinks match your search.' : 'No food matches your search.');
     }
 
     return ListView.separated(
-      itemCount: filtered.length,
+      itemCount: items.length,
       separatorBuilder: (context, index) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
-        final item = filtered[index];
+        final item = items[index];
         return _MenuItemRow(
           item: item,
           quantity: _quantities[item.id] ?? 0,
