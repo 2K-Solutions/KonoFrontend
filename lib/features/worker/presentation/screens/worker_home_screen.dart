@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:konofrontend/core/routes.dart';
 import 'package:konofrontend/core/theme.dart';
 import 'package:konofrontend/core/widgets/bottom_action_bar.dart';
 import 'package:konofrontend/core/widgets/icon_menu_card.dart';
+import 'package:konofrontend/features/worker/data/menu_sync.dart';
 
-class WorkerHomeScreen extends StatelessWidget {
+class WorkerHomeScreen extends ConsumerWidget {
   const WorkerHomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Keeps the menu sync (and its periodic hash check) running while the worker is on the floor.
+    ref.watch(menuSyncProvider);
+
     return Scaffold(
       appBar: AppBar(),
       body: SafeArea(

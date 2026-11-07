@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:konofrontend/core/network/token_storage.dart';
 import 'package:konofrontend/features/auth/data/auth_repository.dart';
+import 'package:konofrontend/features/worker/data/menu_sync.dart';
 
 Future<void> logout(WidgetRef ref) async {
   final tokenStorage = ref.read(tokenStorageProvider);
@@ -9,4 +10,5 @@ Future<void> logout(WidgetRef ref) async {
     await ref.read(authRepositoryProvider).logout(refreshToken);
   }
   await tokenStorage.clearTokens();
+  await clearLocalMenu(ref);
 }
