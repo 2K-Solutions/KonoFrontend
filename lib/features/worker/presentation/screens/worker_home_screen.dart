@@ -5,15 +5,40 @@ import 'package:konofrontend/core/routes.dart';
 import 'package:konofrontend/core/theme.dart';
 import 'package:konofrontend/core/widgets/bottom_action_bar.dart';
 import 'package:konofrontend/core/widgets/icon_menu_card.dart';
+import 'package:konofrontend/features/notifications/push_notifications.dart';
 import 'package:konofrontend/features/worker/data/menu_sync.dart';
 
-class WorkerHomeScreen extends ConsumerWidget {
+class WorkerHomeScreen extends ConsumerStatefulWidget {
   const WorkerHomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<WorkerHomeScreen> createState() => _WorkerHomeScreenState();
+}
+
+class _WorkerHomeScreenState extends ConsumerState<WorkerHomeScreen> {
+  // Pushes aren't handled in the background, so check on resume. A worker who was kicked meanwhile
+  // gets a stale-membership 401 here, which refreshes the token and leaves the floor.
+  late final AppLifecycleListener _lifecycleListener;
+
+  @override
+  void initState() {
+    super.initState();
+    _lifecycleListener = AppLifecycleListener(
+      onResume: () => ref.read(menuSyncProvider.notifier).checkForUpdates(),
+    );
+  }
+
+  @override
+  void dispose() {
+    _lifecycleListener.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     // Keeps the menu sync (and its periodic hash check) running while the worker is on the floor.
     ref.watch(menuSyncProvider);
+    ref.watch(pushNotificationsProvider);
 
     return Scaffold(
       appBar: AppBar(),
