@@ -56,16 +56,28 @@ class MenuDatabase {
       whereArgs: [category == MenuCategory.drinks ? 1 : 0, '%$pattern%'],
       orderBy: 'search_name',
     );
-    return rows
-        .map(
-          (row) => MenuItem(
-            id: row['id'] as String,
-            name: row['name'] as String,
-            price: row['price'] as double,
-            isDrink: row['is_drink'] == 1,
-          ),
-        )
-        .toList();
+    return rows.map(_fromRow).toList();
+  }
+
+  Future<Map<String, MenuItem>> getByIds(Iterable<String> ids) async {
+    final idList = ids.toSet().toList();
+    if (idList.isEmpty) return const {};
+    final db = await _db;
+    final rows = await db.query(
+      _table,
+      where: 'id IN (${List.filled(idList.length, '?').join(', ')})',
+      whereArgs: idList,
+    );
+    return {for (final item in rows.map(_fromRow)) item.id: item};
+  }
+
+  MenuItem _fromRow(Map<String, Object?> row) {
+    return MenuItem(
+      id: row['id'] as String,
+      name: row['name'] as String,
+      price: row['price'] as double,
+      isDrink: row['is_drink'] == 1,
+    );
   }
 
   Future<void> clear() async {
