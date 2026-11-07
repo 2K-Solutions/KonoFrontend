@@ -9,6 +9,7 @@ import 'package:konofrontend/core/widgets/bottom_button_scaffold.dart';
 import 'package:konofrontend/core/widgets/tappable_card.dart';
 import 'package:konofrontend/features/auth/data/logout.dart';
 import 'package:konofrontend/features/worker/data/invite_repository.dart';
+import 'package:konofrontend/features/worker/data/menu_sync.dart';
 
 class WorkerProfileScreen extends ConsumerStatefulWidget {
   const WorkerProfileScreen({super.key});
@@ -55,6 +56,8 @@ class _WorkerProfileScreenState extends ConsumerState<WorkerProfileScreen> {
     if (!mounted) return;
 
     if (result.success) {
+      await clearLocalMenu(ref);
+      if (!mounted) return;
       // Startup refreshes the token so the new account type routes to the invites screen.
       context.go(AppRoutes.startup);
       return;

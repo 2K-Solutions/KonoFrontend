@@ -7,13 +7,11 @@ final menuRepositoryProvider = Provider<MenuRepository>((ref) {
   return DioMenuRepository(ref.watch(dioProvider));
 });
 
-final menuItemsProvider =
-    FutureProvider.autoDispose.family<List<MenuItem>, MenuCategory>((ref, category) {
-  return ref.watch(menuRepositoryProvider).getItems(category: category);
-});
-
 abstract class MenuRepository {
-  Future<List<MenuItem>> getItems({required MenuCategory category, String? restaurantId});
+  Future<MenuSnapshot> getMenuWithHash();
+
+  // Returns null when [hash] still matches the restaurant's menu, otherwise the new menu.
+  Future<MenuSnapshot?> checkMenuHash(String hash);
 }
 
 class DioMenuRepository implements MenuRepository {
@@ -22,20 +20,19 @@ class DioMenuRepository implements MenuRepository {
   final Dio _dio;
 
   @override
-  Future<List<MenuItem>> getItems({
-    required MenuCategory category,
-    String? restaurantId,
-  }) async {
-    final endpoint = switch (category) {
-      MenuCategory.drinks => 'get-drink-items',
-      MenuCategory.food => 'get-food-items',
-    };
-    final response = await _dio.get<List<dynamic>>(
-      '/api/Menu/$endpoint',
-      queryParameters: {'restaurantId': ?restaurantId},
+  Future<MenuSnapshot> getMenuWithHash() async {
+    final response = await _dio.get<Map<String, dynamic>>('/api/Menu/get-menu-hash');
+    return MenuSnapshot.fromJson(response.data!);
+  }
+
+  @override
+  Future<MenuSnapshot?> checkMenuHash(String hash) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/api/Menu/menu-hash/check',
+      queryParameters: {'hash': hash},
     );
-    return response.data!
-        .map((json) => MenuItem.fromJson(json as Map<String, dynamic>))
-        .toList();
+    final data = response.data!;
+    if (data['isUpToDate'] == true) return null;
+    return MenuSnapshot.fromJson(data);
   }
 }

@@ -7,6 +7,7 @@ import 'package:konofrontend/core/theme.dart';
 import 'package:konofrontend/core/widgets/bottom_button_scaffold.dart';
 import 'package:konofrontend/core/widgets/tappable_card.dart';
 import 'package:konofrontend/features/worker/data/invite_repository.dart';
+import 'package:konofrontend/features/worker/data/menu_sync.dart';
 import 'package:konofrontend/features/worker/domain/restaurant_invite.dart';
 
 class WorkerInvitesScreen extends ConsumerStatefulWidget {
@@ -38,6 +39,8 @@ class _WorkerInvitesScreenState extends ConsumerState<WorkerInvitesScreen> {
               refreshToken: result.refreshToken!,
             );
       }
+      // Joining a restaurant always starts from a fresh menu (get-menu-hash).
+      await clearLocalMenu(ref);
       if (!mounted) return;
       setState(() {
         _busyInviteId = null;
